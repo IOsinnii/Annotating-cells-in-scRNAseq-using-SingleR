@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.3.450">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+<meta name="author" content="Ivan Osinnii">
+<meta name="dcterms.date" content="2024-04-12">
+
+<title>Annotating MAIT cells in scRNA-seq using SingleR package</title>
+<style>
+code{white-space: pre-wrap;}
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: min(4vw, 1.5em);}
+div.column{flex: auto; overflow-x: auto;}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/clipboard/clipboard.min.js"></script>
+<script src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/quarto-html/quarto.js"></script>
+<script src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/quarto-html/popper.min.js"></script>
+<script src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/quarto-html/tippy.umd.min.js"></script>
+<script src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/quarto-html/anchor.min.js"></script>
+<link href="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/quarto-html/quarto-syntax-highlighting.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/bootstrap/bootstrap.min.js"></script>
+<link href="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+
+
+</head>
+
+<body>
+
+<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<div id="quarto-sidebar-toc-left" class="sidebar toc-left">
+  <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#introduction" id="toc-introduction" class="nav-link active" data-scroll-target="#introduction"><span class="header-section-number">1</span> Introduction</a></li>
+  <li><a href="#loading-data-and-dependencies" id="toc-loading-data-and-dependencies" class="nav-link" data-scroll-target="#loading-data-and-dependencies"><span class="header-section-number">2</span> Loading data and dependencies</a></li>
+  <li><a href="#running-the-singler-analysis" id="toc-running-the-singler-analysis" class="nav-link" data-scroll-target="#running-the-singler-analysis"><span class="header-section-number">3</span> Running the SingleR analysis</a>
+  <ul class="collapse">
+  <li><a href="#quality-control-of-the-annotation" id="toc-quality-control-of-the-annotation" class="nav-link" data-scroll-target="#quality-control-of-the-annotation"><span class="header-section-number">3.1</span> Quality control of the annotation</a></li>
+  <li><a href="#final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels" id="toc-final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels" class="nav-link" data-scroll-target="#final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels"><span class="header-section-number">3.2</span> Final low-dimensional cell type label projection and double check with “ground truth” labels</a></li>
+  </ul></li>
+  </ul>
+</nav>
+</div>
+<div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+</div>
+<main class="content page-columns page-full" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Annotating MAIT cells in scRNA-seq using SingleR package</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    <div>
+    <div class="quarto-title-meta-heading">Author</div>
+    <div class="quarto-title-meta-contents">
+             <p>Ivan Osinnii </p>
+          </div>
+  </div>
+    
+    <div>
+    <div class="quarto-title-meta-heading">Published</div>
+    <div class="quarto-title-meta-contents">
+      <p class="date">April 12, 2024</p>
+    </div>
+  </div>
+  
+    
+  </div>
+  
+
+</header>
+
+<div class="callout callout-style-default callout-note callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Note
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-1" class="callout-1-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>This is a Quarto document which nicely combines both R code, its results and text explanation to enable an easy and interactive access for both learners, readers and supervisors to such analyses. To learn more about Quarto see <a href="https://quarto.org" class="uri">https://quarto.org</a>. By default all code lines are blended, but you can show them by clicking on the code button.</p>
+</div>
+</div>
+</div>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getwd</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>[1] "/Users/osinnii/Documents/Github/scRNA-seq-workflow/SingleR_annotating_MAIT_cells/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR/R"</code></pre>
+</div>
+</div>
+<section id="introduction" class="level2" data-number="1">
+<h2 data-number="1" class="anchored" data-anchor-id="introduction"><span class="header-section-number">1</span> Introduction</h2>
+<div class="callout callout-style-default callout-tip callout-titled">
+<div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-2-contents" aria-controls="callout-2" aria-expanded="false" aria-label="Toggle callout">
+<div class="callout-icon-container">
+<i class="callout-icon"></i>
+</div>
+<div class="callout-title-container flex-fill">
+Tip
+</div>
+<div class="callout-btn-toggle d-inline-block border-0 py-1 ps-1 pe-0 float-end"><i class="callout-toggle"></i></div>
+</div>
+<div id="callout-2" class="callout-2-contents callout-collapse collapse">
+<div class="callout-body-container callout-body">
+<p>For more information about SingleR R package please visit a dedicated <a href="https://rdrr.io/bioc/SingleR/man/">documentation</a> page with all details regarding embedded functions and their usage. If you use custom packages in your publications, do not forget to cite them using the information provided at the maintainers web-site.</p>
+</div>
+</div>
+</div>
+<p>This analysis is to demonstrate a typical automatic scRNA-seq cell annotation procedure taking Mucosal-Associated Invariant T-cells (MAIT) as an example. For this we need a well annotated reference dataset (ref) and a query dataset where we want to annotate certain cell types. In this case our query dataset will be a recently published data by <a href="https://www.nature.com/articles/s41590-023-01575-1">Garner LC et al, 2023</a> where authors used FACS-sorted T cell populations including MAIT and tissue-resident memory T (Tmem) cells for downstream analyses. Hense, this dataset already contains cell type labels derived from individually processed FACS-sorted samples serving us as a “ground truth”. But we would behave as we would have no prior knowledge of these labels and project our reference on a “blank” dataset using SingleR package.</p>
+<p>The <code>ref</code> dataset is a good-maintained public sc-RNAseq dataset <a href="https://rdrr.io/github/LTLA/celldex/man/MonacoImmuneData.html">MonacoImmuneData</a> containing normalized expression values of 114 bulk RNA-seq samples of sorted immune cell populations that can be found in <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE107011">GSE107011</a>. Samples were additionally annotated to 29 fine cell types (designated as “label.fine” in metadata) including MAIT cells.</p>
+</section>
+<section id="loading-data-and-dependencies" class="level2" data-number="2">
+<h2 data-number="2" class="anchored" data-anchor-id="loading-data-and-dependencies"><span class="header-section-number">2</span> Loading data and dependencies</h2>
+<p>For this analysis we would need libraries <em>SingleR</em>, <em>Seurat</em>, and <em>celldex.</em></p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb3"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(SingleR) <span class="co"># for cell annotation functions</span></span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(Seurat)  <span class="co"># is needed to load our query dataset</span></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(celldex) <span class="co"># contains MonacoImmuneData reference</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Our <code>query</code> dataset was downloaded from <a href="https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE194187">GEO repository</a>, preprocessed using <em>Seurat</em> library and saved as an .rds file. We focus here only on RNA-expression counts and take a dataset consisting of only 2 cell types in liver tissue: MAIT and Tmem cells.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb4"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" aria-hidden="true" tabindex="-1"></a>query <span class="ot">&lt;-</span> <span class="fu">readRDS</span>(<span class="st">"./../input/Garner.seurat.2exp.liver.mait.Trm_analyzed.rds"</span>)</span>
+<span id="cb4-2"><a href="#cb4-2" aria-hidden="true" tabindex="-1"></a>query</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>An object of class Seurat 
+19289 features across 17069 samples within 1 assay 
+Active assay: RNA (19289 features, 2000 variable features)
+ 3 layers present: counts, data, scale.data
+ 2 dimensional reductions calculated: pca, umap</code></pre>
+</div>
+</div>
+<p>Our <code>ref</code>dataset is loaded using a function directly provided by <em>celldex</em> package</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb6"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" aria-hidden="true" tabindex="-1"></a>ref <span class="ot">&lt;-</span> celldex<span class="sc">::</span><span class="fu">MonacoImmuneData</span>()</span>
+<span id="cb6-2"><a href="#cb6-2" aria-hidden="true" tabindex="-1"></a>ref</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>class: SummarizedExperiment 
+dim: 46077 114 
+metadata(0):
+assays(1): logcounts
+rownames(46077): A1BG A1BG-AS1 ... ZYX ZZEF1
+rowData names(0):
+colnames(114): DZQV_CD8_naive DZQV_CD8_CM ... G4YW_Neutrophils
+  G4YW_Basophils
+colData names(3): label.main label.fine label.ont</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A SummarizedExperiment object with a "logcounts" assay containing the log-normalized expression values, along with cell type labels in the colData. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+<section id="running-the-singler-analysis" class="level2 page-columns page-full" data-number="3">
+<h2 data-number="3" class="anchored" data-anchor-id="running-the-singler-analysis"><span class="header-section-number">3</span> Running the SingleR analysis</h2>
+<p>We need to get raw <code>counts</code> matrix from our <code>query</code> in order to provide it to SingleR function.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>query_counts <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(query, <span class="at">layer =</span> <span class="st">'counts'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>And we write our <strong>prediction</strong> function in order to calculate cell type scores for each cell in our query dataset.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prediction <span class="ot">&lt;-</span> <span class="fu">SingleR</span>(<span class="at">test =</span> query_counts,</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ref =</span> ref,</span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">labels =</span> ref<span class="sc">$</span>label.fine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<section id="quality-control-of-the-annotation" class="level3 page-columns page-full" data-number="3.1">
+<h3 data-number="3.1" class="anchored" data-anchor-id="quality-control-of-the-annotation"><span class="header-section-number">3.1</span> Quality control of the annotation</h3>
+<p>Now let’s quickly examine our prediction scores by looking into some build-in SingleR functions. This is a prediction score matrix listing all scores for each cell corresponding to query dataset.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>prediction<span class="sc">$</span>scores[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>,<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output cell-output-stdout">
+<pre><code>     Low-density basophils Low-density neutrophils MAIT cells
+[1,]             0.2167874               0.1900959  0.3983291
+[2,]             0.2114776               0.1479493  0.3830727
+[3,]             0.2156769               0.1765987  0.4072071</code></pre>
+</div>
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We can see that the scores between different cell types (columns) are different for each cell (row) and before we made this visualization the SingleR algorithm assigned each cell to a certain cell type based on the ranking these scores</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+<p>Next we want to plot a heatmap based on these scores to visualize how do they look like compared to each other and whether our label scores were assigned with a high certainty (e.g.&nbsp;with a large “heat color” contrast between different cell types).</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotScoreHeatmap</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/figure-html/unnamed-chunk-8-1.png" class="img-fluid figure-img" width="768"></p>
+<figcaption class="figure-caption margin-caption">Higher score means a big correlation between cells in query clusters and cells labeled in the ref</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<hr>
+<p>After that we plot so-called delta-distribution plot showing the false-positive cell label assignment rate. Each cell type projected on a query dataset is represented with a single violin plot where each cell is a dot.</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotDeltaDistribution</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/figure-html/unnamed-chunk-9-1.png" class="img-fluid figure-img" width="960"></p>
+<figcaption class="figure-caption margin-caption">Yellow dots mean that after pruning (re-assigning labels) cells were found mislabeled and thus represent likely false-positive cell type. Ideally there should not be much and we do not see that here</figcaption>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels" class="level3 page-columns page-full" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels"><span class="header-section-number">3.2</span> Final low-dimensional cell type label projection and double check with “ground truth” labels</h3>
+<p>After we had a close look on different visualizations of our cell label transfer model we want to see what kind of spacial organization do our newly assigned cell types have. For that we need to come back to the full dataset and plot a UMAP plot grouping our cells according to new cell labels</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>query<span class="sc">$</span>singleR.labels.fine <span class="ot">&lt;-</span> prediction<span class="sc">$</span>labels[<span class="fu">match</span>(<span class="fu">rownames</span>(query<span class="sc">@</span>meta.data), <span class="fu">rownames</span>(prediction))]</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(query, <span class="at">reduction =</span> <span class="st">'umap'</span>, <span class="at">group.by =</span> <span class="st">'singleR.labels.fine'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/figure-html/unnamed-chunk-10-1.png" class="img-fluid figure-img" width="768"></p>
+<figcaption class="figure-caption margin-caption">So we see that as expected, a significant portion of dataset is mapped as MAIT cells. But does this go in an agreement with the endogenous <em>ground truth</em> sorted cell labels? This question is important because it might well be that reference dataset cells are isolated from a different organ or at least phenotypically different donor and thus may contain a technical/biological bias</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>To check for possible biases in our MAIT cell annotation we want to plot the same UMAP representation with the “endogenous” labels from Garner et al.&nbsp;publication.</p>
+<div class="cell page-columns page-full">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(query, <span class="at">reduction =</span> <span class="st">'umap'</span>, <span class="at">group.by =</span> <span class="st">'cell_type'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+<div class="cell-output-display page-columns page-full">
+<div class="quarto-figure quarto-figure-center page-columns page-full">
+<figure class="figure page-columns page-full">
+<p><img src="Annotating_MAIT_cells_in_scRNA-seq_using_SingleR_files/figure-html/unnamed-chunk-11-1.png" class="img-fluid figure-img" width="576"></p>
+<figcaption class="figure-caption margin-caption">It seems that our <code>ref</code> cell label projection is accurate, since the endogenous labels mark exactly the same clusters as MAIT cells</figcaption>
+</figure>
+</div>
+</div>
+</div>
+<p>Congratulations! We have just annotated MAIT cells in a <code>query</code> dataset getting the label information from <code>ref</code> dataset and using SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting. *** Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.</p>
+<div class="cell">
+<details>
+<summary>Code</summary>
+<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sessionInfo()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</details>
+</div>
+</section>
+</section>
+
+</main>
+<!-- /main column -->
+<script id="quarto-html-after-body" type="application/javascript">
+window.document.addEventListener("DOMContentLoaded", function (event) {
+  const toggleBodyColorMode = (bsSheetEl) => {
+    const mode = bsSheetEl.getAttribute("data-mode");
+    const bodyEl = window.document.querySelector("body");
+    if (mode === "dark") {
+      bodyEl.classList.add("quarto-dark");
+      bodyEl.classList.remove("quarto-light");
+    } else {
+      bodyEl.classList.add("quarto-light");
+      bodyEl.classList.remove("quarto-dark");
+    }
+  }
+  const toggleBodyColorPrimary = () => {
+    const bsSheetEl = window.document.querySelector("link#quarto-bootstrap");
+    if (bsSheetEl) {
+      toggleBodyColorMode(bsSheetEl);
+    }
+  }
+  toggleBodyColorPrimary();  
+  const icon = "";
+  const anchorJS = new window.AnchorJS();
+  anchorJS.options = {
+    placement: 'right',
+    icon: icon
+  };
+  anchorJS.add('.anchored');
+  const isCodeAnnotation = (el) => {
+    for (const clz of el.classList) {
+      if (clz.startsWith('code-annotation-')) {                     
+        return true;
+      }
+    }
+    return false;
+  }
+  const clipboard = new window.ClipboardJS('.code-copy-button', {
+    text: function(trigger) {
+      const codeEl = trigger.previousElementSibling.cloneNode(true);
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+  });
+  clipboard.on('success', function(e) {
+    // button target
+    const button = e.trigger;
+    // don't keep focus
+    button.blur();
+    // flash "checked"
+    button.classList.add('code-copy-button-checked');
+    var currentTitle = button.getAttribute("title");
+    button.setAttribute("title", "Copied!");
+    let tooltip;
+    if (window.bootstrap) {
+      button.setAttribute("data-bs-toggle", "tooltip");
+      button.setAttribute("data-bs-placement", "left");
+      button.setAttribute("data-bs-title", "Copied!");
+      tooltip = new bootstrap.Tooltip(button, 
+        { trigger: "manual", 
+          customClass: "code-copy-button-tooltip",
+          offset: [0, -8]});
+      tooltip.show();    
+    }
+    setTimeout(function() {
+      if (tooltip) {
+        tooltip.hide();
+        button.removeAttribute("data-bs-title");
+        button.removeAttribute("data-bs-toggle");
+        button.removeAttribute("data-bs-placement");
+      }
+      button.setAttribute("title", currentTitle);
+      button.classList.remove('code-copy-button-checked');
+    }, 1000);
+    // clear code selection
+    e.clearSelection();
+  });
+  function tippyHover(el, contentFn) {
+    const config = {
+      allowHTML: true,
+      content: contentFn,
+      maxWidth: 500,
+      delay: 100,
+      arrow: false,
+      appendTo: function(el) {
+          return el.parentElement;
+      },
+      interactive: true,
+      interactiveBorder: 10,
+      theme: 'quarto',
+      placement: 'bottom-start'
+    };
+    window.tippy(el, config); 
+  }
+  const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+  for (var i=0; i<noterefs.length; i++) {
+    const ref = noterefs[i];
+    tippyHover(ref, function() {
+      // use id or data attribute instead here
+      let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+      try { href = new URL(href).hash; } catch {}
+      const id = href.replace(/^#\/?/, "");
+      const note = window.document.getElementById(id);
+      return note.innerHTML;
+    });
+  }
+      let selectedAnnoteEl;
+      const selectorForAnnotation = ( cell, annotation) => {
+        let cellAttr = 'data-code-cell="' + cell + '"';
+        let lineAttr = 'data-code-annotation="' +  annotation + '"';
+        const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+        return selector;
+      }
+      const selectCodeLines = (annoteEl) => {
+        const doc = window.document;
+        const targetCell = annoteEl.getAttribute("data-target-cell");
+        const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+        const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+        const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+        const lineIds = lines.map((line) => {
+          return targetCell + "-" + line;
+        })
+        let top = null;
+        let height = null;
+        let parent = null;
+        if (lineIds.length > 0) {
+            //compute the position of the single el (top and bottom and make a div)
+            const el = window.document.getElementById(lineIds[0]);
+            top = el.offsetTop;
+            height = el.offsetHeight;
+            parent = el.parentElement.parentElement;
+          if (lineIds.length > 1) {
+            const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+            const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+            height = bottom - top;
+          }
+          if (top !== null && height !== null && parent !== null) {
+            // cook up a div (if necessary) and position it 
+            let div = window.document.getElementById("code-annotation-line-highlight");
+            if (div === null) {
+              div = window.document.createElement("div");
+              div.setAttribute("id", "code-annotation-line-highlight");
+              div.style.position = 'absolute';
+              parent.appendChild(div);
+            }
+            div.style.top = top - 2 + "px";
+            div.style.height = height + 4 + "px";
+            let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+            if (gutterDiv === null) {
+              gutterDiv = window.document.createElement("div");
+              gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+              gutterDiv.style.position = 'absolute';
+              const codeCell = window.document.getElementById(targetCell);
+              const gutter = codeCell.querySelector('.code-annotation-gutter');
+              gutter.appendChild(gutterDiv);
+            }
+            gutterDiv.style.top = top - 2 + "px";
+            gutterDiv.style.height = height + 4 + "px";
+          }
+          selectedAnnoteEl = annoteEl;
+        }
+      };
+      const unselectCodeLines = () => {
+        const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+        elementsIds.forEach((elId) => {
+          const div = window.document.getElementById(elId);
+          if (div) {
+            div.remove();
+          }
+        });
+        selectedAnnoteEl = undefined;
+      };
+      // Attach click handler to the DT
+      const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+      for (const annoteDlNode of annoteDls) {
+        annoteDlNode.addEventListener('click', (event) => {
+          const clickedEl = event.target;
+          if (clickedEl !== selectedAnnoteEl) {
+            unselectCodeLines();
+            const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+            if (activeEl) {
+              activeEl.classList.remove('code-annotation-active');
+            }
+            selectCodeLines(clickedEl);
+            clickedEl.classList.add('code-annotation-active');
+          } else {
+            // Unselect the line
+            unselectCodeLines();
+            clickedEl.classList.remove('code-annotation-active');
+          }
+        });
+      }
+  const findCites = (el) => {
+    const parentEl = el.parentElement;
+    if (parentEl) {
+      const cites = parentEl.dataset.cites;
+      if (cites) {
+        return {
+          el,
+          cites: cites.split(' ')
+        };
+      } else {
+        return findCites(el.parentElement)
+      }
+    } else {
+      return undefined;
+    }
+  };
+  var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+  for (var i=0; i<bibliorefs.length; i++) {
+    const ref = bibliorefs[i];
+    const citeInfo = findCites(ref);
+    if (citeInfo) {
+      tippyHover(citeInfo.el, function() {
+        var popup = window.document.createElement('div');
+        citeInfo.cites.forEach(function(cite) {
+          var citeDiv = window.document.createElement('div');
+          citeDiv.classList.add('hanging-indent');
+          citeDiv.classList.add('csl-entry');
+          var biblioDiv = window.document.getElementById('ref-' + cite);
+          if (biblioDiv) {
+            citeDiv.innerHTML = biblioDiv.innerHTML;
+          }
+          popup.appendChild(citeDiv);
+        });
+        return popup.innerHTML;
+      });
+    }
+  }
+});
+</script>
+</div> <!-- /content -->
+
+
+
+</body></html>
