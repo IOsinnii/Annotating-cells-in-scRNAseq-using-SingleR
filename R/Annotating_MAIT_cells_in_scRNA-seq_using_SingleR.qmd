@@ -89,7 +89,7 @@ plotScoreHeatmap(prediction)
 
 After that we plot so-called delta-distribution plot showing the false-positive cell label assignment rate. Each cell type projected on a query dataset is represented with a single violin plot where each cell is a dot.
 
-```{r, warning=FALSE, fig.height= 8, fig.width= 10, fig.cap= "Yellow dots mean that after pruning (re-assigning labels) cells were found mislabeled and thus represent likely false-positive cell type. Ideally there should not be much and we do not see that here"}
+```{r, warning=FALSE, fig.height= 8, fig.width= 10, fig.cap= "Yellow dots mean that after pruning (re-assigning labels after challenging their corresponding scores) cells were found mislabeled and thus represent likely false-positives. Ideally there should not be much and we do not see that here"}
 plotDeltaDistribution(prediction)
 ```
 
@@ -109,6 +109,7 @@ DimPlot(query, reduction = 'umap', group.by = 'cell_type')
 ```
 
 Congratulations! We have just annotated MAIT cells in a `query` dataset getting the label information from `ref` dataset and using SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.
+
 ***
 Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.
 
