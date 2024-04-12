@@ -86,7 +86,8 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
   <li><a href="#running-the-singler-analysis" id="toc-running-the-singler-analysis" class="nav-link" data-scroll-target="#running-the-singler-analysis"><span class="header-section-number">3</span> Running the SingleR analysis</a>
   <ul class="collapse">
   <li><a href="#quality-control-of-the-annotation" id="toc-quality-control-of-the-annotation" class="nav-link" data-scroll-target="#quality-control-of-the-annotation"><span class="header-section-number">3.1</span> Quality control of the annotation</a></li>
-  <li><a href="#final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels" id="toc-final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels" class="nav-link" data-scroll-target="#final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels"><span class="header-section-number">3.2</span> Final low-dimensional cell type label projection and double check with “ground truth” labels</a></li>
+  <li><a href="#reduced-dimension-cell-type-label-visualization" id="toc-reduced-dimension-cell-type-label-visualization" class="nav-link" data-scroll-target="#reduced-dimension-cell-type-label-visualization"><span class="header-section-number">3.2</span> Reduced dimension cell type label visualization</a></li>
+  <li><a href="#check-our-model-by-its-comparison-with-ground-truth-labels" id="toc-check-our-model-by-its-comparison-with-ground-truth-labels" class="nav-link" data-scroll-target="#check-our-model-by-its-comparison-with-ground-truth-labels"><span class="header-section-number">3.3</span> Check our model by its comparison with “ground truth” labels</a></li>
   </ul></li>
   </ul>
 </nav>
@@ -289,9 +290,9 @@ colData names(3): label.main label.fine label.ont</code></pre>
 </div>
 </div>
 </section>
-<section id="final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels" class="level3 page-columns page-full" data-number="3.2">
-<h3 data-number="3.2" class="anchored" data-anchor-id="final-low-dimensional-cell-type-label-projection-and-double-check-with-ground-truth-labels"><span class="header-section-number">3.2</span> Final low-dimensional cell type label projection and double check with “ground truth” labels</h3>
-<p>After we had a close look on different visualizations of our cell label transfer model we want to see what kind of spacial organization do our newly assigned cell types have. For that we need to come back to the full dataset and plot a UMAP plot grouping our cells according to new cell labels</p>
+<section id="reduced-dimension-cell-type-label-visualization" class="level3 page-columns page-full" data-number="3.2">
+<h3 data-number="3.2" class="anchored" data-anchor-id="reduced-dimension-cell-type-label-visualization"><span class="header-section-number">3.2</span> Reduced dimension cell type label visualization</h3>
+<p>After we had a close look on different visualizations of our cell label score model we might want to see what kind of spacial organization do our newly assigned cell types have. For that we need to come back to the full dataset and plot a UMAP plot grouping our cells according to new cell labels</p>
 <div class="cell page-columns page-full">
 <details>
 <summary>Code</summary>
@@ -307,6 +308,9 @@ colData names(3): label.main label.fine label.ont</code></pre>
 </div>
 </div>
 </div>
+</section>
+<section id="check-our-model-by-its-comparison-with-ground-truth-labels" class="level3 page-columns page-full" data-number="3.3">
+<h3 data-number="3.3" class="anchored" data-anchor-id="check-our-model-by-its-comparison-with-ground-truth-labels"><span class="header-section-number">3.3</span> Check our model by its comparison with “ground truth” labels</h3>
 <p>To check for possible biases in our MAIT cell annotation we want to plot the same UMAP representation with the “endogenous” labels from Garner et al.&nbsp;publication.</p>
 <div class="cell page-columns page-full">
 <details>
@@ -322,7 +326,7 @@ colData names(3): label.main label.fine label.ont</code></pre>
 </div>
 </div>
 </div>
-<p>We have just annotated MAIT cells in a <code>query</code> dataset getting the label information from <code>ref</code> dataset and using SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.</p>
+<p>We have just annotated MAIT cells in a <code>query</code> dataset getting the label information from <code>ref</code> dataset with a help of SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.</p>
 <hr>
 <p>Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.</p>
 <div class="cell">

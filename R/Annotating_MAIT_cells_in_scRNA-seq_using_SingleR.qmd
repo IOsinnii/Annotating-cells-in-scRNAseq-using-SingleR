@@ -93,14 +93,16 @@ After that we plot so-called delta-distribution plot showing the false-positive 
 plotDeltaDistribution(prediction)
 ```
 
-### Final low-dimensional cell type label projection and double check with "ground truth" labels
+### Reduced dimension cell type label visualization 
 
-After we had a close look on different visualizations of our cell label transfer model we want to see what kind of spacial organization do our newly assigned cell types have. For that we need to come back to the full dataset and plot a UMAP plot grouping our cells according to new cell labels
+After we had a close look on different visualizations of our cell label score model we might want to see what kind of spacial organization do our newly assigned cell types have. For that we need to come back to the full dataset and plot a UMAP plot grouping our cells according to new cell labels
 
 ```{r, fig.height= 6, fig.width= 8, fig.cap = "So we see that as expected, a significant portion of dataset is mapped as MAIT cells. But does this go in an agreement with the endogenous *ground truth* sorted cell labels? This question is important because it might well be that reference dataset cells are isolated from a different organ or at least phenotypically different donor and thus may contain a technical/biological bias"}
 query$singleR.labels.fine <- prediction$labels[match(rownames(query@meta.data), rownames(prediction))]
 DimPlot(query, reduction = 'umap', group.by = 'singleR.labels.fine')
 ```
+
+### Check our model by its comparison with "ground truth" labels
 
 To check for possible biases in our MAIT cell annotation we want to plot the same UMAP representation with the "endogenous" labels from Garner et al. publication.
 
@@ -108,7 +110,7 @@ To check for possible biases in our MAIT cell annotation we want to plot the sam
 DimPlot(query, reduction = 'umap', group.by = 'cell_type')
 ```
 
-We have just annotated MAIT cells in a `query` dataset getting the label information from `ref` dataset and using SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.
+We have just annotated MAIT cells in a `query` dataset getting the label information from `ref` dataset with a help of SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.
 
 ***
 Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.
