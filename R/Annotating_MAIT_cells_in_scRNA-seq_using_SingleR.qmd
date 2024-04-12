@@ -108,7 +108,7 @@ To check for possible biases in our MAIT cell annotation we want to plot the sam
 DimPlot(query, reduction = 'umap', group.by = 'cell_type')
 ```
 
-Congratulations! We have just annotated MAIT cells in a `query` dataset getting the label information from `ref` dataset and using SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.
+We have just annotated MAIT cells in a `query` dataset getting the label information from `ref` dataset and using SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.
 
 ***
 Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.
