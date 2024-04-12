@@ -215,11 +215,9 @@ colnames(114): DZQV_CD8_naive DZQV_CD8_CM ... G4YW_Neutrophils
   G4YW_Basophils
 colData names(3): label.main label.fine label.ont</code></pre>
 </div>
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="co"># A SummarizedExperiment object with a "logcounts" assay containing the log-normalized expression values, along with cell type labels in the colData. </span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
+<p>A SummarizedExperiment object with a “logcounts” assay containing the log-normalized expression values, along with cell type labels in the colData.</p>
+<hr>
 </section>
 <section id="running-the-singler-analysis" class="level2 page-columns page-full" data-number="3">
 <h2 data-number="3" class="anchored" data-anchor-id="running-the-singler-analysis"><span class="header-section-number">3</span> Running the SingleR analysis</h2>
@@ -227,16 +225,16 @@ colData names(3): label.main label.fine label.ont</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>query_counts <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(query, <span class="at">layer =</span> <span class="st">'counts'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a>query_counts <span class="ot">&lt;-</span> <span class="fu">GetAssayData</span>(query, <span class="at">layer =</span> <span class="st">'counts'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <p>And we write our <strong>prediction</strong> function in order to calculate cell type scores for each cell in our query dataset.</p>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prediction <span class="ot">&lt;-</span> <span class="fu">SingleR</span>(<span class="at">test =</span> query_counts,</span>
-<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ref =</span> ref,</span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">labels =</span> ref<span class="sc">$</span>label.fine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a>prediction <span class="ot">&lt;-</span> <span class="fu">SingleR</span>(<span class="at">test =</span> query_counts,</span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>                 <span class="at">ref =</span> ref,</span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>                 <span class="at">labels =</span> ref<span class="sc">$</span>label.fine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 </div>
 <section id="quality-control-of-the-annotation" class="level3 page-columns page-full" data-number="3.1">
@@ -245,7 +243,7 @@ colData names(3): label.main label.fine label.ont</code></pre>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a>prediction<span class="sc">$</span>scores[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>,<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>prediction<span class="sc">$</span>scores[<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>,<span class="dv">7</span><span class="sc">:</span><span class="dv">9</span>]</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
 <pre><code>     Low-density basophils Low-density neutrophils MAIT cells
@@ -253,16 +251,14 @@ colData names(3): label.main label.fine label.ont</code></pre>
 [2,]             0.2114776               0.1479493  0.3830727
 [3,]             0.2156769               0.1765987  0.4072071</code></pre>
 </div>
-<details>
-<summary>Code</summary>
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co"># We can see that the scores between different cell types (columns) are different for each cell (row) and before we made this visualization the SingleR algorithm assigned each cell to a certain cell type based on the ranking these scores</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</details>
 </div>
+<p>We can see that the scores between different cell types (columns) are different for each cell (row) and before we made this visualization the SingleR algorithm assigned each cell to a certain cell type based on the ranking these scores.</p>
+<hr>
 <p>Next we want to plot a heatmap based on these scores to visualize how do they look like compared to each other and whether our label scores were assigned with a high certainty (e.g.&nbsp;with a large “heat color” contrast between different cell types).</p>
 <div class="cell page-columns page-full">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotScoreHeatmap</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotScoreHeatmap</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display page-columns page-full">
 <div class="quarto-figure quarto-figure-center page-columns page-full">
@@ -278,7 +274,7 @@ colData names(3): label.main label.fine label.ont</code></pre>
 <div class="cell page-columns page-full">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotDeltaDistribution</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="fu">plotDeltaDistribution</span>(prediction)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display page-columns page-full">
 <div class="quarto-figure quarto-figure-center page-columns page-full">
@@ -296,8 +292,8 @@ colData names(3): label.main label.fine label.ont</code></pre>
 <div class="cell page-columns page-full">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>query<span class="sc">$</span>singleR.labels.fine <span class="ot">&lt;-</span> prediction<span class="sc">$</span>labels[<span class="fu">match</span>(<span class="fu">rownames</span>(query<span class="sc">@</span>meta.data), <span class="fu">rownames</span>(prediction))]</span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(query, <span class="at">reduction =</span> <span class="st">'umap'</span>, <span class="at">group.by =</span> <span class="st">'singleR.labels.fine'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>query<span class="sc">$</span>singleR.labels.fine <span class="ot">&lt;-</span> prediction<span class="sc">$</span>labels[<span class="fu">match</span>(<span class="fu">rownames</span>(query<span class="sc">@</span>meta.data), <span class="fu">rownames</span>(prediction))]</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(query, <span class="at">reduction =</span> <span class="st">'umap'</span>, <span class="at">group.by =</span> <span class="st">'singleR.labels.fine'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display page-columns page-full">
 <div class="quarto-figure quarto-figure-center page-columns page-full">
@@ -315,7 +311,7 @@ colData names(3): label.main label.fine label.ont</code></pre>
 <div class="cell page-columns page-full">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(query, <span class="at">reduction =</span> <span class="st">'umap'</span>, <span class="at">group.by =</span> <span class="st">'cell_type'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb15"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" aria-hidden="true" tabindex="-1"></a><span class="fu">DimPlot</span>(query, <span class="at">reduction =</span> <span class="st">'umap'</span>, <span class="at">group.by =</span> <span class="st">'cell_type'</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output-display page-columns page-full">
 <div class="quarto-figure quarto-figure-center page-columns page-full">
@@ -329,11 +325,123 @@ colData names(3): label.main label.fine label.ont</code></pre>
 <p>We have just annotated MAIT cells in a <code>query</code> dataset getting the label information from <code>ref</code> dataset with a help of SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.</p>
 <hr>
 <p>Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.</p>
+<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+Session Information
+</button>
+<div id="collapseOne" class="accordion-collapse collapse">
+<div>
 <div class="cell">
 <details>
 <summary>Code</summary>
-<div class="sourceCode cell-code" id="cb18"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a><span class="co"># sessionInfo()</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="fu">sessionInfo</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
+<div class="cell-output cell-output-stdout">
+<pre><code>R version 4.3.3 (2024-02-29)
+Platform: aarch64-apple-darwin20 (64-bit)
+Running under: macOS Sonoma 14.3
+
+Matrix products: default
+BLAS:   /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRblas.0.dylib 
+LAPACK: /Library/Frameworks/R.framework/Versions/4.3-arm64/Resources/lib/libRlapack.dylib;  LAPACK version 3.11.0
+
+locale:
+[1] en_US.UTF-8/en_US.UTF-8/en_US.UTF-8/C/en_US.UTF-8/en_US.UTF-8
+
+time zone: Europe/Zurich
+tzcode source: internal
+
+attached base packages:
+[1] stats4    stats     graphics  grDevices utils     datasets  methods  
+[8] base     
+
+other attached packages:
+ [1] celldex_1.12.0              Seurat_5.0.3               
+ [3] SeuratObject_5.0.1          sp_2.1-3                   
+ [5] SingleR_2.4.1               SummarizedExperiment_1.32.0
+ [7] Biobase_2.62.0              GenomicRanges_1.54.1       
+ [9] GenomeInfoDb_1.38.8         IRanges_2.36.0             
+[11] S4Vectors_0.40.2            BiocGenerics_0.48.1        
+[13] MatrixGenerics_1.14.0       matrixStats_1.2.0          
+
+loaded via a namespace (and not attached):
+  [1] RcppAnnoy_0.0.22              splines_4.3.3                
+  [3] later_1.3.2                   filelock_1.0.3               
+  [5] bitops_1.0-7                  tibble_3.2.1                 
+  [7] polyclip_1.10-6               fastDummies_1.7.3            
+  [9] lifecycle_1.0.4               globals_0.16.3               
+ [11] lattice_0.22-6                MASS_7.3-60.0.1              
+ [13] magrittr_2.0.3                plotly_4.10.4                
+ [15] rmarkdown_2.26                yaml_2.3.8                   
+ [17] httpuv_1.6.15                 sctransform_0.4.1            
+ [19] spam_2.10-0                   spatstat.sparse_3.0-3        
+ [21] reticulate_1.35.0             cowplot_1.1.3                
+ [23] pbapply_1.7-2                 DBI_1.2.2                    
+ [25] RColorBrewer_1.1-3            abind_1.4-5                  
+ [27] zlibbioc_1.48.2               Rtsne_0.17                   
+ [29] purrr_1.0.2                   RCurl_1.98-1.14              
+ [31] rappdirs_0.3.3                GenomeInfoDbData_1.2.11      
+ [33] ggrepel_0.9.5                 irlba_2.3.5.1                
+ [35] listenv_0.9.1                 spatstat.utils_3.0-4         
+ [37] pheatmap_1.0.12               goftest_1.2-3                
+ [39] RSpectra_0.16-1               spatstat.random_3.2-3        
+ [41] fitdistrplus_1.1-11           parallelly_1.37.1            
+ [43] DelayedMatrixStats_1.24.0     leiden_0.4.3.1               
+ [45] codetools_0.2-20              DelayedArray_0.28.0          
+ [47] tidyselect_1.2.1              farver_2.1.1                 
+ [49] viridis_0.6.5                 ScaledMatrix_1.10.0          
+ [51] BiocFileCache_2.10.2          spatstat.explore_3.2-7       
+ [53] jsonlite_1.8.8                progressr_0.14.0             
+ [55] ggridges_0.5.6                survival_3.5-8               
+ [57] tools_4.3.3                   ica_1.0-3                    
+ [59] Rcpp_1.0.12                   glue_1.7.0                   
+ [61] gridExtra_2.3                 SparseArray_1.2.4            
+ [63] xfun_0.43                     dplyr_1.1.4                  
+ [65] withr_3.0.0                   BiocManager_1.30.22          
+ [67] fastmap_1.1.1                 fansi_1.0.6                  
+ [69] digest_0.6.35                 rsvd_1.0.5                   
+ [71] R6_2.5.1                      mime_0.12                    
+ [73] colorspace_2.1-0              scattermore_1.2              
+ [75] tensor_1.5                    spatstat.data_3.0-4          
+ [77] RSQLite_2.3.6                 utf8_1.2.4                   
+ [79] tidyr_1.3.1                   generics_0.1.3               
+ [81] data.table_1.15.4             httr_1.4.7                   
+ [83] htmlwidgets_1.6.4             S4Arrays_1.2.1               
+ [85] uwot_0.1.16                   pkgconfig_2.0.3              
+ [87] gtable_0.3.4                  blob_1.2.4                   
+ [89] lmtest_0.9-40                 XVector_0.42.0               
+ [91] htmltools_0.5.8.1             dotCall64_1.1-1              
+ [93] scales_1.3.0                  png_0.1-8                    
+ [95] knitr_1.45                    rstudioapi_0.16.0            
+ [97] reshape2_1.4.4                nlme_3.1-164                 
+ [99] curl_5.2.1                    zoo_1.8-12                   
+[101] cachem_1.0.8                  stringr_1.5.1                
+[103] BiocVersion_3.18.1            KernSmooth_2.23-22           
+[105] parallel_4.3.3                miniUI_0.1.1.1               
+[107] AnnotationDbi_1.64.1          pillar_1.9.0                 
+[109] grid_4.3.3                    vctrs_0.6.5                  
+[111] RANN_2.6.1                    promises_1.2.1               
+[113] BiocSingular_1.18.0           dbplyr_2.5.0                 
+[115] beachmat_2.18.1               xtable_1.8-4                 
+[117] cluster_2.1.6                 evaluate_0.23                
+[119] cli_3.6.2                     compiler_4.3.3               
+[121] rlang_1.1.3                   crayon_1.5.2                 
+[123] future.apply_1.11.2           labeling_0.4.3               
+[125] plyr_1.8.9                    stringi_1.8.3                
+[127] viridisLite_0.4.2             deldir_2.0-4                 
+[129] BiocParallel_1.36.0           munsell_0.5.1                
+[131] Biostrings_2.70.3             lazyeval_0.2.2               
+[133] spatstat.geom_3.2-9           Matrix_1.6-5                 
+[135] ExperimentHub_2.10.0          RcppHNSW_0.6.0               
+[137] patchwork_1.2.0               sparseMatrixStats_1.14.0     
+[139] bit64_4.0.5                   future_1.33.2                
+[141] ggplot2_3.5.0                 KEGGREST_1.42.0              
+[143] shiny_1.8.1.1                 interactiveDisplayBase_1.40.0
+[145] AnnotationHub_3.10.0          ROCR_1.0-11                  
+[147] igraph_2.0.3                  memoise_2.0.1                
+[149] bit_4.0.5                    </code></pre>
+</div>
+</div>
+</div>
 </div>
 </section>
 </section>

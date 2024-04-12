@@ -51,8 +51,10 @@ Our `ref`dataset is loaded using a function directly provided by *celldex* packa
 ```{r, message=F, warning=F}
 ref <- celldex::MonacoImmuneData()
 ref
-# A SummarizedExperiment object with a "logcounts" assay containing the log-normalized expression values, along with cell type labels in the colData. 
 ```
+A SummarizedExperiment object with a "logcounts" assay containing the log-normalized expression values, along with cell type labels in the colData.
+
+***
 
 ## Running the SingleR analysis
 
@@ -74,10 +76,12 @@ prediction <- SingleR(test = query_counts,
 
 Now let's quickly examine our prediction scores by looking into some build-in SingleR functions. This is a prediction score matrix listing all scores for each cell corresponding to query dataset.
 
-```{r, fig.cap= ""}
+```{r}
 prediction$scores[7:9,7:9]
-# We can see that the scores between different cell types (columns) are different for each cell (row) and before we made this visualization the SingleR algorithm assigned each cell to a certain cell type based on the ranking these scores
 ```
+We can see that the scores between different cell types (columns) are different for each cell (row) and before we made this visualization the SingleR algorithm assigned each cell to a certain cell type based on the ranking these scores.
+
+***
 
 Next we want to plot a heatmap based on these scores to visualize how do they look like compared to each other and whether our label scores were assigned with a high certainty (e.g. with a large "heat color" contrast between different cell types).
 
@@ -115,8 +119,10 @@ We have just annotated MAIT cells in a `query` dataset getting the label informa
 ***
 Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.
 
+<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" >Session Information</button><div id="collapseOne" class="accordion-collapse collapse"><div>
+
 ```{r}
-#| echo: true
-#| message: false
-# sessionInfo()
+sessionInfo()
 ```
+
+</div></div>
