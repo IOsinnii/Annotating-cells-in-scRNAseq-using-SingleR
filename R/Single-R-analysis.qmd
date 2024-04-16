@@ -1,0 +1,139 @@
+---
+title: "Annotating MAIT cells in scRNA-seq using SingleR package"
+author: "Ivan Osinnii"
+date: "12 April 2024"
+format: html
+code-fold: true
+editor: visual
+toc: true
+toc-location: left
+number-sections: true
+fig-cap-location: margin
+---
+
+::: {.callout-note collapse="true"}
+This is a Quarto document which nicely combines both R code, its results and text explanation to enable an easy and interactive access for both learners, readers and supervisors to such analyses. To learn more about Quarto see <https://quarto.org>. By default all code lines are blended, but you can show them by clicking on the code button.
+:::
+
+```{r}
+getwd()
+```
+
+## Introduction
+
+::: {.callout-tip collapse="true"}
+For more information about SingleR R package please visit a dedicated [documentation](https://rdrr.io/bioc/SingleR/man/) page with all details regarding embedded functions and their usage. If you use custom packages in your publications, do not forget to cite them using the information provided at the maintainers web-site.
+:::
+
+This analysis is to demonstrate a typical automatic scRNA-seq cell annotation procedure taking Mucosal-Associated Invariant T-cells (MAIT) as an example. For this we need a well annotated reference dataset (ref) and a query dataset where we want to annotate certain cell types. In this case our query dataset will be a recently published data by [Garner LC et al, 2023](https://www.nature.com/articles/s41590-023-01575-1) where authors used FACS-sorted T cell populations including MAIT and tissue-resident memory T (Tmem) cells for downstream analyses. Hense, this dataset already contains cell type labels derived from individually processed FACS-sorted samples serving us as a "ground truth". But we would behave as we would have no prior knowledge of these labels and project our reference on a "blank" dataset using SingleR package.
+
+The `ref` dataset is a good-maintained public sc-RNAseq dataset [MonacoImmuneData](https://rdrr.io/github/LTLA/celldex/man/MonacoImmuneData.html) containing normalized expression values of 114 bulk RNA-seq samples of sorted immune cell populations that can be found in [GSE107011](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE107011). Samples were additionally annotated to 29 fine cell types (designated as "label.fine" in metadata) including MAIT cells.
+
+## Loading data and dependencies
+
+For this analysis we would need libraries *SingleR*, *Seurat*, and *celldex.*
+
+```{r, message=F, warning=F}
+library(SingleR) # for cell annotation functions
+library(Seurat)  # is needed to load our query dataset
+library(celldex) # contains MonacoImmuneData reference
+```
+
+Our `query` dataset was downloaded from [GEO repository](https://www.ncbi.nlm.nih.gov/geo/query/acc.cgi?acc=GSE194187), preprocessed using *Seurat* library and saved as an .rds file. We focus here only on RNA-expression counts and take a dataset consisting of only 2 cell types in liver tissue: MAIT and Tmem cells.
+
+```{r, message=F, warning=F}
+query <- readRDS("./../input/Garner.seurat.2exp.liver.mait.Trm_analyzed.rds")
+query
+```
+
+Our `ref`dataset is loaded using a function directly provided by *celldex* package
+
+```{r, message=F, warning=F}
+ref <- celldex::MonacoImmuneData()
+ref
+```
+
+A SummarizedExperiment object with a "logcounts" assay containing the log-normalized expression values, along with cell type labels in the colData.
+
+------------------------------------------------------------------------
+
+## Running the SingleR analysis
+
+We need to get raw `counts` matrix from our `query` in order to provide it to SingleR function.
+
+```{r}
+query_counts <- GetAssayData(query, layer = 'counts')
+```
+
+And we write our **prediction** function in order to calculate cell type scores for each cell in our query dataset.
+
+```{r}
+prediction <- SingleR(test = query_counts,
+                 ref = ref,
+                 labels = ref$label.fine)
+```
+
+### Quality control of the annotation
+
+Now let's quickly examine our prediction scores by looking into some build-in SingleR functions. This is a prediction score matrix listing all scores for each cell corresponding to query dataset.
+
+```{r}
+prediction$scores[7:9,7:9]
+```
+
+We can see that the scores between different cell types (columns) are different for each cell (row) and before we made this visualization the SingleR algorithm assigned each cell to a certain cell type based on the ranking these scores.
+
+------------------------------------------------------------------------
+
+Next we want to plot a heatmap based on these scores to visualize how do they look like compared to each other and whether our label scores were assigned with a high certainty (e.g. with a large "heat color" contrast between different cell types).
+
+```{r, warning=FALSE, fig.height= 6, fig.width= 8, fig.cap="Higher score means a big correlation between cells in query clusters and cells labeled in the ref"}
+plotScoreHeatmap(prediction)
+```
+
+------------------------------------------------------------------------
+
+After that we plot so-called delta-distribution plot showing the false-positive cell label assignment rate. Each cell type projected on a query dataset is represented with a single violin plot where each cell is a dot.
+
+```{r, warning=FALSE, fig.height= 8, fig.width= 10, fig.cap= "Yellow dots mean that after pruning (re-assigning labels after challenging their corresponding scores) cells were found mislabeled and thus represent likely false-positives. Ideally there should not be much and we do not see that here"}
+plotDeltaDistribution(prediction)
+```
+
+### Reduced dimension cell type label visualization
+
+After we had a close look on different visualizations of our cell label score model we might want to see what kind of spacial organization do our newly assigned cell types have. For that we need to come back to the full dataset and plot a UMAP plot grouping our cells according to new cell labels
+
+```{r, fig.height= 6, fig.width= 8, fig.cap = "So we see that as expected, a significant portion of dataset is mapped as MAIT cells. But does this go in an agreement with the endogenous *ground truth* sorted cell labels? This question is important because it might well be that reference dataset cells are isolated from a different organ or at least phenotypically different donor and thus may contain a technical/biological bias"}
+query$singleR.labels.fine <- prediction$labels[match(rownames(query@meta.data), rownames(prediction))]
+DimPlot(query, reduction = 'umap', group.by = 'singleR.labels.fine')
+```
+
+### Check our model by its comparison with "ground truth" labels
+
+To check for possible biases in our MAIT cell annotation we want to plot the same UMAP representation with the "endogenous" labels from Garner et al. publication.
+
+```{r, fig.height= 6, fig.width= 6, fig.cap= "It seems that our `ref` cell label projection is accurate, since the endogenous labels mark exactly the same clusters as MAIT cells"}
+DimPlot(query, reduction = 'umap', group.by = 'cell_type')
+```
+
+We have just annotated MAIT cells in a `query` dataset getting the label information from `ref` dataset with a help of SingleR package. Please note that the information provided in explanation sections may be not very accurate or exhausting.
+
+------------------------------------------------------------------------
+
+Optionally we can check the versions of our libraries in order to be able to reproduce exactly these results in future.
+
+<button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne">
+
+Session Information
+
+</button>
+
+::: {#collapseOne .accordion-collapse .collapse}
+<div>
+
+```{r}
+sessionInfo()
+```
+
+</div>
+:::
