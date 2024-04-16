@@ -69,13 +69,60 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <script src="Single-R-analysis_files/libs/bootstrap/bootstrap.min.js"></script>
 <link href="Single-R-analysis_files/libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
 <link href="Single-R-analysis_files/libs/bootstrap/bootstrap.min.css" rel="stylesheet" id="quarto-bootstrap" data-mode="light">
+<style>
+
+      .quarto-title-block .quarto-title-banner h1,
+      .quarto-title-block .quarto-title-banner h2,
+      .quarto-title-block .quarto-title-banner h3,
+      .quarto-title-block .quarto-title-banner h4,
+      .quarto-title-block .quarto-title-banner h5,
+      .quarto-title-block .quarto-title-banner h6
+      {
+        color: black;
+      }
+
+      .quarto-title-block .quarto-title-banner {
+        color: black;
+background: #f0f3f5;
+      }
+</style>
 
 
+<link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
+<header id="title-block-header" class="quarto-title-block default toc-left page-columns page-full">
+  <div class="quarto-title-banner page-columns page-full">
+    <div class="quarto-title column-body">
+      <h1 class="title">Annotating MAIT cells in scRNA-seq using SingleR package</h1>
+            <p class="subtitle lead">scRNA-seq workflow series part2</p>
+                      </div>
+  </div>
+    
+  
+  <div class="quarto-title-meta">
+
+      <div>
+      <div class="quarto-title-meta-heading">Author</div>
+      <div class="quarto-title-meta-contents">
+               <p>Ivan Osinnii </p>
+            </div>
+    </div>
+      
+      <div>
+      <div class="quarto-title-meta-heading">Published</div>
+      <div class="quarto-title-meta-contents">
+        <p class="date">April 12, 2024</p>
+      </div>
+    </div>
+    
+      
+    </div>
+    
+  
+  </header><div id="quarto-content" class="page-columns page-rows-contents page-layout-article toc-left">
 <div id="quarto-sidebar-toc-left" class="sidebar toc-left">
   <nav id="TOC" role="doc-toc" class="toc-active">
     <h2 id="toc-title">Table of contents</h2>
@@ -94,36 +141,10 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
 </div>
-<main class="content page-columns page-full" id="quarto-document-content">
-
-<header id="title-block-header" class="quarto-title-block default">
-<div class="quarto-title">
-<h1 class="title">Annotating MAIT cells in scRNA-seq using SingleR package</h1>
-</div>
+<main class="content quarto-banner-title-block page-columns page-full" id="quarto-document-content">
 
 
 
-<div class="quarto-title-meta">
-
-    <div>
-    <div class="quarto-title-meta-heading">Author</div>
-    <div class="quarto-title-meta-contents">
-             <p>Ivan Osinnii </p>
-          </div>
-  </div>
-    
-    <div>
-    <div class="quarto-title-meta-heading">Published</div>
-    <div class="quarto-title-meta-contents">
-      <p class="date">April 12, 2024</p>
-    </div>
-  </div>
-  
-    
-  </div>
-  
-
-</header>
 
 <div class="callout callout-style-default callout-note callout-titled">
 <div class="callout-header d-flex align-content-center" data-bs-toggle="collapse" data-bs-target=".callout-1-contents" aria-controls="callout-1" aria-expanded="false" aria-label="Toggle callout">
@@ -147,7 +168,7 @@ Note
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="fu">getwd</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </details>
 <div class="cell-output cell-output-stdout">
-<pre><code>[1] "/Users/osinnii/Documents/Github/scRNA-seq-workflow/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR/R"</code></pre>
+<pre><code>[1] "/Users/osinnii/Documents/Github/scRNA-seq-workflow/SingleR_annotating_MAIT_cells/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR/R"</code></pre>
 </div>
 </div>
 <section id="introduction" class="level2" data-number="1">

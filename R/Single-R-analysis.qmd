@@ -1,5 +1,8 @@
 ---
 title: "Annotating MAIT cells in scRNA-seq using SingleR package"
+subtitle: "scRNA-seq workflow series part2" 
+title-block-banner: "#f0f3f5"
+title-block-banner-color: "black"
 author: "Ivan Osinnii"
 date: "12 April 2024"
 format: html
@@ -9,6 +12,7 @@ toc: true
 toc-location: left
 number-sections: true
 fig-cap-location: margin
+css: style.css
 ---
 
 ::: {.callout-note collapse="true"}
