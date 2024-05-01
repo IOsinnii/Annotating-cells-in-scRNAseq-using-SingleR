@@ -1,0 +1,9 @@
+{
+    "sortOrder": [
+        {
+            "columnIndex": 2,
+            "ascending": true
+        }
+    ],
+    "path": "~/Documents/Github/scRNA-seq-workflow/SingleR_annotating_MAIT_cells/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR"
+}

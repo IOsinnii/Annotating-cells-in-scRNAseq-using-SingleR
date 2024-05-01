@@ -1,0 +1,31 @@
+{
+    "id": "06DFF462",
+    "path": "~/Documents/Github/scRNA-seq-workflow/SingleR_annotating_MAIT_cells/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR/R/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR.qmd",
+    "project_path": "R/Annotating_MAIT_cells_in_scRNA-seq_using_SingleR.qmd",
+    "type": "quarto_markdown",
+    "hash": "0",
+    "contents": "",
+    "dirty": true,
+    "created": 1713206279514.0,
+    "source_on_save": false,
+    "relative_order": 1,
+    "properties": {
+        "rmdVisualMode": "false",
+        "rmdVisualWrapConfigured": "true",
+        "source_window_id": "",
+        "Source": "Source",
+        "docOutlineVisible": "1",
+        "cursorPosition": "0,0",
+        "scrollLine": "13",
+        "rmdVisualModeLocation": "368:30.5",
+        "rmdVisualCollapsedChunks": ""
+    },
+    "folds": "",
+    "lastKnownWriteTime": 1712933388,
+    "encoding": "UTF-8",
+    "collab_server": "",
+    "source_window": "",
+    "last_content_update": 1713206990411,
+    "read_only": false,
+    "read_only_alternatives": []
+}
